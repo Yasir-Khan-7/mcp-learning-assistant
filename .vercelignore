@@ -1,0 +1,11 @@
+# Ignore root dependencies and build files
+/node_modules
+/dist
+/src
+/package.json
+/package-lock.json
+/tsconfig.json
+
+# Only use demo directory
+!demo/
+
