@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+*.swp
+*.swo
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test coverage
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Documentation files (not to be pushed)
+*.md
+!README.md
+
+# Configuration files specific to local setup
+cursor-mcp-config.json
+setup.sh
+test-examples.js
+
+# Old mcp folder
+mcp/
+
+# Summary files
+PUSH_SUMMARY.txt
+

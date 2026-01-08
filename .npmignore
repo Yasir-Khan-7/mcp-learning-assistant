@@ -1,0 +1,43 @@
+# Source files
+src/
+
+# Config files
+tsconfig.json
+.gitignore
+.npmignore
+
+# Test files
+*.test.ts
+*.spec.ts
+test/
+tests/
+
+# Documentation
+*.md
+!README.md
+
+# Development
+.vscode/
+.idea/
+
+# CI/CD
+.github/
+
+# Git
+.git/
+.gitattributes
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# Examples and configs
+mcp-config.example.json
+

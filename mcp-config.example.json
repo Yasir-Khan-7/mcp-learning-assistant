@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "learning-assistant": {
+      "command": "node",
+      "args": [
+        "/absolute/path/to/learning-assistant-mcp/dist/index.js"
+      ]
+    }
+  }
+}
+
