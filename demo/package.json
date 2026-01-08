@@ -1,0 +1,16 @@
+{
+  "name": "learning-assistant-demo",
+  "version": "1.0.0",
+  "description": "Demo UI for Learning Assistant MCP Server",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "groq-sdk": "^0.5.0",
+    "cors": "^2.8.5"
+  }
+}
+

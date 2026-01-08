@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning Assistant MCP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #fafafa;
+      --bg-tertiary: #f4f4f5;
+      --bg-card: #ffffff;
+      --accent-primary: #000000;
+      --accent-secondary: #171717;
+      --accent-hover: #262626;
+      --text-primary: #09090b;
+      --text-secondary: #52525b;
+      --text-muted: #a1a1aa;
+      --border-color: #e4e4e7;
+      --border-dark: #d4d4d8;
+      --success: #10b981;
+      --success-bg: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-bg: #fffbeb;
+      --error: #ef4444;
+      --error-bg: #fef2f2;
+      --code-bg: #09090b;
+      --code-text: #fafafa;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.04);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
+      --transition-fast: 100ms ease;
+      --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Header */
+    header {
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.875rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--accent-primary);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+    }
+
+    h1 {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+      margin-left: auto;
+      font-weight: 400;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 1.5rem;
+      min-height: calc(100vh - 57px);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: sticky;
+      top: 73px;
+      height: fit-content;
+    }
+
+    .sidebar h2 {
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      padding-left: 0.75rem;
+      font-weight: 500;
+    }
+
+    .tool-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .tool-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.5rem 0.75rem;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: 'Geist', sans-serif;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-align: left;
+      position: relative;
+    }
+
+    .tool-btn:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .tool-btn.active {
+      background: var(--accent-primary);
+      color: white;
+    }
+
+    .tool-btn .icon {
+      font-size: 0.875rem;
+      width: 18px;
+      text-align: center;
+      opacity: 0.8;
+      transition: all var(--transition-fast);
+    }
+
+    .tool-btn.active .icon,
+    .tool-btn:hover .icon {
+      opacity: 1;
+    }
+
+    /* Main Content */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Tool Panel */
+    .tool-panel {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.875rem;
+      background: var(--bg-primary);
+    }
+
+    .panel-header .icon {
+      font-size: 1.25rem;
+      background: var(--bg-tertiary);
+      padding: 0.5rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .panel-header-text h3 {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.125rem;
+    }
+
+    .panel-header-text p {
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+    }
+
+    .panel-body {
+      padding: 1.5rem;
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group:last-of-type {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.375rem;
+      letter-spacing: 0.01em;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: 'Geist', sans-serif;
+      font-size: 0.8125rem;
+      transition: all var(--transition-fast);
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    input:hover, select:hover, textarea:hover {
+      border-color: var(--border-dark);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+    }
+
+    textarea {
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.75rem;
+      min-height: 100px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2371717a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      padding-right: 2rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Geist', sans-serif;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-primary {
+      background: var(--accent-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Results Panel */
+    .results-panel {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      animation: slideUp 0.25s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .results-header {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-tertiary);
+    }
+
+    .results-header h4 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .results-body {
+      padding: 1.25rem;
+      max-height: 550px;
+      overflow-y: auto;
+    }
+
+    .results-body::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .results-body::-webkit-scrollbar-track {
+      background: var(--bg-tertiary);
+    }
+
+    .results-body::-webkit-scrollbar-thumb {
+      background: var(--border-dark);
+      border-radius: 2px;
+    }
+
+    /* Result Cards */
+    .result-section {
+      margin-bottom: 1.25rem;
+    }
+
+    .result-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .result-section h5 {
+      font-size: 0.625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.375rem;
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 600;
+    }
+
+    .result-text {
+      color: var(--text-primary);
+      line-height: 1.7;
+      font-size: 0.8125rem;
+    }
+
+    .result-list {
+      list-style: none;
+    }
+
+    .result-list li {
+      position: relative;
+      padding-left: 1rem;
+      margin-bottom: 0.375rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      font-size: 0.8125rem;
+    }
+
+    .result-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.5rem;
+      width: 4px;
+      height: 4px;
+      background: var(--accent-primary);
+      border-radius: 50%;
+    }
+
+    .code-block {
+      background: var(--code-bg);
+      border-radius: var(--radius-sm);
+      padding: 0.875rem 1rem;
+      overflow-x: auto;
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.6875rem;
+      line-height: 1.8;
+    }
+
+    .code-block code {
+      color: var(--code-text);
+    }
+
+    /* Status Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.1875rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.625rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .badge-success {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .badge-warning {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .badge-error {
+      background: var(--error-bg);
+      color: var(--error);
+    }
+
+    .badge-neutral {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+    }
+
+    /* Loading State */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem;
+      color: var(--text-muted);
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--border-color);
+      border-top-color: var(--accent-primary);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-bottom: 0.75rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading p {
+      font-size: 0.75rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state .icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+      opacity: 0.5;
+    }
+
+    /* Comparison Cards */
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .comparison-card {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .comparison-card h6 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+    }
+
+    .pros-cons {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .pros h6, .cons h6 {
+      font-size: 0.5625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.25rem;
+    }
+
+    .pros h6 { color: var(--success); }
+    .cons h6 { color: var(--error); }
+
+    /* Quiz Cards */
+    .quiz-question {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .quiz-question .q-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-primary);
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      font-size: 0.625rem;
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+
+    .quiz-options {
+      margin-top: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .quiz-option {
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-primary);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      border: 1px solid var(--border-color);
+      font-size: 0.75rem;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--accent-primary);
+    }
+
+    .quiz-option.correct {
+      background: var(--success-bg);
+      border-color: var(--success);
+    }
+
+    /* Phase Cards */
+    .phase-card {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      border-left: 3px solid var(--accent-primary);
+    }
+
+    .phase-card h6 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .phase-duration {
+      color: var(--text-muted);
+      font-size: 0.6875rem;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      .tool-list {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.25rem;
+      }
+
+      .tool-btn {
+        flex-direction: column;
+        text-align: center;
+        padding: 0.5rem 0.25rem;
+        gap: 0.125rem;
+        font-size: 0.625rem;
+      }
+
+      .tool-btn .icon {
+        width: auto;
+      }
+
+      .header-content {
+        flex-wrap: wrap;
+      }
+
+      .subtitle {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 0.25rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .tool-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 400px) {
+      .tool-list {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Tool content visibility - IMPORTANT to override any other styles */
+    .tool-content {
+      display: none !important;
+    }
+
+    .tool-content.active {
+      display: block !important;
+    }
+
+    /* Focus select styling */
+    select[multiple] {
+      height: auto;
+      min-height: 80px;
+      padding: 0.25rem;
+    }
+
+    select[multiple] option {
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 0.125rem;
+      font-size: 0.75rem;
+    }
+
+    select[multiple] option:checked {
+      background: var(--accent-primary);
+      color: white;
+    }
+
+    /* Details/Summary styling */
+    details {
+      margin-top: 0.75rem;
+    }
+
+    details summary {
+      cursor: pointer;
+      color: var(--accent-primary);
+      font-weight: 500;
+      font-size: 0.75rem;
+    }
+
+    details summary:hover {
+      text-decoration: underline;
+    }
+
+    details[open] summary {
+      margin-bottom: 0.5rem;
+    }
+
+    details > p {
+      background: var(--success-bg);
+      padding: 0.75rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid #bbf7d0;
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div class="logo">
+        <div class="logo-icon">🎓</div>
+        <h1>Learning Assistant MCP</h1>
+      </div>
+      <p class="subtitle">AI-powered tools to help you learn and improve your coding skills</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <aside class="sidebar">
+      <h2>Tools</h2>
+      <div class="tool-list">
+        <button class="tool-btn active" data-tool="explainConcept">
+          <span class="icon">💡</span>
+          <span>Explain Concept</span>
+        </button>
+        <button class="tool-btn" data-tool="reviewCode">
+          <span class="icon">🔍</span>
+          <span>Review Code</span>
+        </button>
+        <button class="tool-btn" data-tool="suggestBestPractice">
+          <span class="icon">✨</span>
+          <span>Best Practices</span>
+        </button>
+        <button class="tool-btn" data-tool="compareApproaches">
+          <span class="icon">⚖️</span>
+          <span>Compare</span>
+        </button>
+        <button class="tool-btn" data-tool="generateLearningPath">
+          <span class="icon">🗺️</span>
+          <span>Learning Path</span>
+        </button>
+        <button class="tool-btn" data-tool="debugHelper">
+          <span class="icon">🐛</span>
+          <span>Debug Helper</span>
+        </button>
+        <button class="tool-btn" data-tool="explainThisCode">
+          <span class="icon">📖</span>
+          <span>Explain Code</span>
+        </button>
+        <button class="tool-btn" data-tool="quizMe">
+          <span class="icon">❓</span>
+          <span>Quiz Me</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <!-- Explain Concept -->
+      <div class="tool-content active" id="explainConcept">
+        <div class="tool-panel">
+          <div class="panel-header">
+            <span class="icon">💡</span>
+            <div class="panel-header-text">
+              <h3>Explain Concept</h3>
+              <p>Get clear explanations of programming concepts with examples</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Concept to Explain</label>
+              <input type="text" id="concept-input" placeholder="e.g., closures, async/await, REST API, recursion">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Difficulty Level</label>
+                <select id="concept-level">
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Programming Language (optional)</label>
+                <input type="text" id="concept-language" placeholder="e.g., JavaScript, Python">
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="runTool('explainConcept')">
+              Explain Concept →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review Code -->
+      <div class="tool-content" id="reviewCode">
+        <div class="tool-panel">
+          <div class="panel-header">
+            <span class="icon">🔍</span>
+            <div class="panel-header-text">
+              <h3>Review Code</h3>
+              <p>Get constructive feedback on your code with improvement suggestions</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Code to Review</label>
+              <textarea id="review-code" placeholder="Paste your code here..."></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Programming Language</label>
+                <input type="text" id="review-language" placeholder="e.g., JavaScript, Python">
+              </div>
+              <div class="form-group">
+                <label>Context (optional)</label>
+                <input type="text" id="review-context" placeholder="What should this code do?">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Focus Areas</label>
+              <select id="review-focus" multiple>
+                <option value="correctness">Correctness</option>
+                <option value="performance">Performance</option>
+                <option value="readability">Readability</option>
+                <option value="security">Security</option>
+                <option value="best-practices">Best Practices</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="runTool('reviewCode')">
+              Review Code →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Best Practices -->
+      <div class="tool-content" id="suggestBestPractice">
+        <div class="tool-panel">
+          <div class="panel-header">
+            <span class="icon">✨</span>
+            <div class="panel-header-text">
+              <h3>Suggest Best Practices</h3>
+              <p>Learn industry best practices for any programming task</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Task or Area</label>
+              <input type="text" id="practice-task" placeholder="e.g., error handling, API design, state management">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Technology (optional)</label>
+                <input type="text" id="practice-tech" placeholder="e.g., React, Node.js, Python">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Current Approach (optional)</label>
+              <textarea id="practice-current" placeholder="Describe your current approach..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="runTool('suggestBestPractice')">
+              Get Best Practices →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compare Approaches -->
+      <div class="tool-content" id="compareApproaches">
+        <div class="tool-panel">
+          <div class="panel-header">
+            <span class="icon">⚖️</span>
+            <div class="panel-header-text">
+              <h3>Compare Approaches</h3>
+              <p>Compare different solutions and understand tradeoffs</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Problem to Solve</label>
+              <input type="text" id="compare-problem" placeholder="e.g., Managing state in a React application">
+            </div>
+            <div class="form-group">
+              <label>Approaches to Compare (comma separated)</label>
+              <input type="text" id="compare-approaches" placeholder="e.g., useState, useReducer, Redux, Zustand">
+            </div>
+            <div class="form-group">
+              <label>Comparison Criteria (optional, comma separated)</label>
+              <input type="text" id="compare-criteria" placeholder="e.g., performance, scalability, ease of use">
+            </div>
+            <button class="btn btn-primary" onclick="runTool('compareApproaches')">
+              Compare Approaches →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Learning Path -->
+      <div class="tool-content" id="generateLearningPath">
+        <div class="tool-panel">
+          <div class="panel-header">
+            <span class="icon">🗺️</span>
+            <div class="panel-header-text">
+              <h3>Generate Learning Path</h3>
+              <p>Get a structured roadmap to learn any technology</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Topic to Learn</label>
+              <input type="text" id="path-topic" placeholder="e.g., React, TypeScript, System Design">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Current Level</label>
+                <select id="path-current">
+                  <option value="complete-beginner">Complete Beginner</option>
+                  <option value="some-experience">Some Experience</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Goal Level</label>
+                <select id="path-goal">
+                  <option value="basic-understanding">Basic Understanding</option>
+                  <option value="working-knowledge">Working Knowledge</option>
+                  <option value="proficient">Proficient</option>
+                  <option value="expert">Expert</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Time Commitment</label>
+              <select id="path-time">
+                <option value="1-hour-daily">1 Hour Daily</option>
+                <option value="2-3-hours-daily">2-3 Hours Daily</option>
+                <option value="full-time">Full Time</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="runTool('generateLearningPath')">
+              Generate Learning Path →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Debug Helper -->
+      <div class="tool-content" id="debugHelper">
+        <div class="tool-panel">
+          <div class="panel-header">
+            <span class="icon">🐛</span>
+            <div class="panel-header-text">
+              <h3>Debug Helper</h3>
+              <p>Understand and fix errors with guided debugging help</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Error Message</label>
+              <textarea id="debug-error" placeholder="Paste the error message here..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Related Code (optional)</label>
+              <textarea id="debug-code" placeholder="Paste the code that caused the error..."></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Programming Language</label>
+                <input type="text" id="debug-language" placeholder="e.g., JavaScript, Python">
+              </div>
+              <div class="form-group">
+                <label>Context (optional)</label>
+                <input type="text" id="debug-context" placeholder="What were you trying to do?">
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="runTool('debugHelper')">
+              Debug Error →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Explain Code -->
+      <div class="tool-content" id="explainThisCode">
+        <div class="tool-panel">
+          <div class="panel-header">
+            <span class="icon">📖</span>
+            <div class="panel-header-text">
+              <h3>Explain This Code</h3>
+              <p>Get detailed explanations of how code works</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Code to Explain</label>
+              <textarea id="explain-code" placeholder="Paste the code you want explained..."></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Programming Language</label>
+                <input type="text" id="explain-language" placeholder="e.g., JavaScript, Python">
+              </div>
+              <div class="form-group">
+                <label>Detail Level</label>
+                <select id="explain-level">
+                  <option value="overview">Overview</option>
+                  <option value="detailed" selected>Detailed</option>
+                  <option value="line-by-line">Line by Line</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="runTool('explainThisCode')">
+              Explain Code →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz Me -->
+      <div class="tool-content" id="quizMe">
+        <div class="tool-panel">
+          <div class="panel-header">
+            <span class="icon">❓</span>
+            <div class="panel-header-text">
+              <h3>Quiz Me</h3>
+              <p>Test your knowledge with auto-generated practice questions</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Topic</label>
+              <input type="text" id="quiz-topic" placeholder="e.g., JavaScript closures, React hooks, Python OOP">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Difficulty</label>
+                <select id="quiz-difficulty">
+                  <option value="easy">Easy</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Number of Questions</label>
+                <select id="quiz-count">
+                  <option value="3">3 Questions</option>
+                  <option value="5" selected>5 Questions</option>
+                  <option value="10">10 Questions</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Question Type</label>
+              <select id="quiz-type">
+                <option value="mixed" selected>Mixed</option>
+                <option value="multiple-choice">Multiple Choice</option>
+                <option value="true-false">True/False</option>
+                <option value="code-output">Code Output</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="runTool('quizMe')">
+              Generate Quiz →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="results-panel" id="results-panel" style="display: none;">
+        <div class="results-header">
+          <h4>📋 Results</h4>
+          <span class="badge badge-neutral" id="token-usage"></span>
+        </div>
+        <div class="results-body" id="results-body">
+          <!-- Results will be rendered here -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Tool switching - CLEAR RESULTS when switching tabs
+    document.querySelectorAll('.tool-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Update active button
+        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Show correct tool panel
+        const tool = btn.dataset.tool;
+        document.querySelectorAll('.tool-content').forEach(c => c.classList.remove('active'));
+        const activePanel = document.getElementById(tool);
+        if (activePanel) {
+          activePanel.classList.add('active');
+        }
+
+        // Clear and hide results panel when switching tabs
+        const resultsPanel = document.getElementById('results-panel');
+        const resultsBody = document.getElementById('results-body');
+        resultsPanel.style.display = 'none';
+        resultsBody.innerHTML = '';
+      });
+    });
+
+    // Run tool
+    async function runTool(toolName) {
+      const resultsPanel = document.getElementById('results-panel');
+      const resultsBody = document.getElementById('results-body');
+      const tokenUsage = document.getElementById('token-usage');
+
+      resultsPanel.style.display = 'block';
+      resultsBody.innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Generating response...</p>
+        </div>
+      `;
+
+      // Scroll to results
+      setTimeout(() => {
+        resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+
+      let params = {};
+      
+      switch (toolName) {
+        case 'explainConcept':
+          params = {
+            concept: document.getElementById('concept-input').value,
+            level: document.getElementById('concept-level').value,
+            language: document.getElementById('concept-language').value || undefined
+          };
+          break;
+        case 'reviewCode':
+          const focusSelect = document.getElementById('review-focus');
+          const focusAreas = Array.from(focusSelect.selectedOptions).map(o => o.value);
+          params = {
+            code: document.getElementById('review-code').value,
+            language: document.getElementById('review-language').value,
+            context: document.getElementById('review-context').value || undefined,
+            focusAreas: focusAreas.length ? focusAreas : undefined
+          };
+          break;
+        case 'suggestBestPractice':
+          params = {
+            task: document.getElementById('practice-task').value,
+            technology: document.getElementById('practice-tech').value || undefined,
+            currentApproach: document.getElementById('practice-current').value || undefined
+          };
+          break;
+        case 'compareApproaches':
+          params = {
+            problem: document.getElementById('compare-problem').value,
+            approaches: document.getElementById('compare-approaches').value.split(',').map(s => s.trim()),
+            criteria: document.getElementById('compare-criteria').value ? 
+              document.getElementById('compare-criteria').value.split(',').map(s => s.trim()) : undefined
+          };
+          break;
+        case 'generateLearningPath':
+          params = {
+            topic: document.getElementById('path-topic').value,
+            currentLevel: document.getElementById('path-current').value,
+            goalLevel: document.getElementById('path-goal').value,
+            timeCommitment: document.getElementById('path-time').value
+          };
+          break;
+        case 'debugHelper':
+          params = {
+            error: document.getElementById('debug-error').value,
+            code: document.getElementById('debug-code').value || undefined,
+            language: document.getElementById('debug-language').value || undefined,
+            context: document.getElementById('debug-context').value || undefined
+          };
+          break;
+        case 'explainThisCode':
+          params = {
+            code: document.getElementById('explain-code').value,
+            language: document.getElementById('explain-language').value,
+            detailLevel: document.getElementById('explain-level').value
+          };
+          break;
+        case 'quizMe':
+          params = {
+            topic: document.getElementById('quiz-topic').value,
+            difficulty: document.getElementById('quiz-difficulty').value,
+            questionCount: parseInt(document.getElementById('quiz-count').value),
+            questionType: document.getElementById('quiz-type').value
+          };
+          break;
+      }
+
+      try {
+        const response = await fetch('/api/tool', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tool: toolName, params })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          tokenUsage.textContent = `${data.usage?.total_tokens || 0} tokens`;
+          resultsBody.innerHTML = renderResults(toolName, data.result);
+        } else {
+          resultsBody.innerHTML = `
+            <div class="empty-state">
+              <div class="icon">❌</div>
+              <p>Error: ${data.error}</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        resultsBody.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">❌</div>
+            <p>Error: ${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    function renderResults(tool, result) {
+      switch (tool) {
+        case 'explainConcept': return renderConceptExplanation(result);
+        case 'reviewCode': return renderCodeReview(result);
+        case 'suggestBestPractice': return renderBestPractices(result);
+        case 'compareApproaches': return renderComparison(result);
+        case 'generateLearningPath': return renderLearningPath(result);
+        case 'debugHelper': return renderDebugHelp(result);
+        case 'explainThisCode': return renderCodeExplanation(result);
+        case 'quizMe': return renderQuiz(result);
+        default: return `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+      }
+    }
+
+    function renderConceptExplanation(r) {
+      return `
+        <div class="result-section">
+          <h5>Summary</h5>
+          <p class="result-text">${r.summary || ''}</p>
+        </div>
+        ${r.keyPoints?.length ? `
+        <div class="result-section">
+          <h5>Key Points</h5>
+          <ul class="result-list">
+            ${r.keyPoints.map(p => `<li>${p}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+        ${r.analogy ? `
+        <div class="result-section">
+          <h5>Real-World Analogy</h5>
+          <p class="result-text">${r.analogy}</p>
+        </div>
+        ` : ''}
+        ${r.codeExample ? `
+        <div class="result-section">
+          <h5>Code Example</h5>
+          <div class="code-block"><code>${escapeHtml(r.codeExample)}</code></div>
+        </div>
+        ` : ''}
+        ${r.commonMistakes?.length ? `
+        <div class="result-section">
+          <h5>Common Mistakes to Avoid</h5>
+          <ul class="result-list">
+            ${r.commonMistakes.map(m => `<li>${m}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+        ${r.relatedConcepts?.length ? `
+        <div class="result-section">
+          <h5>Related Concepts</h5>
+          <ul class="result-list">
+            ${r.relatedConcepts.map(c => `<li>${c}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+        ${r.practiceExercise ? `
+        <div class="result-section">
+          <h5>Practice Exercise</h5>
+          <p class="result-text">${r.practiceExercise}</p>
+        </div>
+        ` : ''}
+      `;
+    }
+
+    function renderCodeReview(r) {
+      return `
+        <div class="result-section">
+          <h5>Overall Assessment</h5>
+          <p class="result-text">${r.overallAssessment || ''}</p>
+          <span class="badge ${r.isCorrect ? 'badge-success' : 'badge-error'}" style="margin-top: 0.5rem;">
+            ${r.isCorrect ? '✓ Code is correct' : '✗ Issues found'}
+          </span>
+        </div>
+        ${r.strengths?.length ? `
+        <div class="result-section">
+          <h5>Strengths</h5>
+          <ul class="result-list">
+            ${r.strengths.map(s => `<li>${s}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+        ${r.improvements?.length ? `
+        <div class="result-section">
+          <h5>Suggested Improvements</h5>
+          <ul class="result-list">
+            ${r.improvements.map(i => `<li>${i}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+        ${r.securityConcerns?.length ? `
+        <div class="result-section">
+          <h5>Security Concerns</h5>
+          <ul class="result-list">
+            ${r.securityConcerns.map(s => `<li>${s}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+        ${r.refactoredCode ? `
+        <div class="result-section">
+          <h5>Refactored Code</h5>
+          <div class="code-block"><code>${escapeHtml(r.refactoredCode)}</code></div>
+        </div>
+        ` : ''}
+        ${r.learningResources?.length ? `
+        <div class="result-section">
+          <h5>Learning Resources</h5>
+          <ul class="result-list">
+            ${r.learningResources.map(l => `<li>${l}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+      `;
+    }
+
+    function renderBestPractices(r) {
+      return `
+        ${r.practices?.length ? `
+        <div class="result-section">
+          <h5>Best Practices</h5>
+          ${r.practices.map(p => `
+            <div class="phase-card">
+              <h6>${p.practice}</h6>
+              <p class="result-text"><strong>Why:</strong> ${p.why}</p>
+              ${p.example ? `<div class="code-block" style="margin-top: 0.75rem;"><code>${escapeHtml(p.example)}</code></div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+        ` : ''}
+        ${r.antiPatterns?.length ? `
+        <div class="result-section">
+          <h5>Anti-Patterns to Avoid</h5>
+          <ul class="result-list">
+            ${r.antiPatterns.map(a => `<li>${a}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+        ${r.resources?.length ? `
+        <div class="result-section">
+          <h5>Resources</h5>
+          <ul class="result-list">
+            ${r.resources.map(res => `<li>${res}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+      `;
+    }
+
+    function renderComparison(r) {
+      return `
+        ${r.comparison?.length ? `
+        <div class="result-section">
+          <h5>Approach Comparison</h5>
+          <div class="comparison-grid">
+            ${r.comparison.map(c => `
+              <div class="comparison-card">
+                <h6>${c.approach}</h6>
+                <p style="margin-bottom: 1rem;"><span class="badge badge-neutral">${c.complexity} complexity</span></p>
+                <div class="pros-cons">
+                  <div class="pros">
+                    <h6>Pros</h6>
+                    <ul class="result-list">
+                      ${c.pros?.map(p => `<li>${p}</li>`).join('') || ''}
+                    </ul>
+                  </div>
+                  <div class="cons">
+                    <h6>Cons</h6>
+                    <ul class="result-list">
+                      ${c.cons?.map(con => `<li>${con}</li>`).join('') || ''}
+                    </ul>
+                  </div>
+                </div>
+                <p style="margin-top: 0.75rem; color: var(--text-muted); font-size: 0.8rem;">
+                  <strong>Best for:</strong> ${c.bestFor}
+                </p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        ` : ''}
+        ${r.recommendation ? `
+        <div class="result-section">
+          <h5>Recommendation</h5>
+          <p class="result-text">${r.recommendation}</p>
+        </div>
+        ` : ''}
+        ${r.tradeoffs ? `
+        <div class="result-section">
+          <h5>Key Tradeoffs</h5>
+          <p class="result-text">${r.tradeoffs}</p>
+        </div>
+        ` : ''}
+      `;
+    }
+
+    function renderLearningPath(r) {
+      return `
+        ${r.estimatedDuration ? `
+        <div class="result-section">
+          <h5>Estimated Duration</h5>
+          <p class="result-text">${r.estimatedDuration}</p>
+        </div>
+        ` : ''}
+        ${r.phases?.length ? `
+        <div class="result-section">
+          <h5>Learning Phases</h5>
+          ${r.phases.map((p, i) => `
+            <div class="phase-card">
+              <h6>Phase ${i + 1}: ${p.name}</h6>
+              <p class="phase-duration">Duration: ${p.duration}</p>
+              ${p.objectives?.length ? `
+                <p><strong>Objectives:</strong></p>
+                <ul class="result-list">
+                  ${p.objectives.map(o => `<li>${o}</li>`).join('')}
+                </ul>
+              ` : ''}
+              ${p.topics?.length ? `
+                <p style="margin-top: 0.75rem;"><strong>Topics:</strong></p>
+                <ul class="result-list">
+                  ${p.topics.map(t => `<li>${t}</li>`).join('')}
+                </ul>
+              ` : ''}
+              ${p.projects?.length ? `
+                <p style="margin-top: 0.75rem;"><strong>Projects:</strong></p>
+                <ul class="result-list">
+                  ${p.projects.map(pr => `<li>${pr}</li>`).join('')}
+                </ul>
+              ` : ''}
+            </div>
+          `).join('')}
+        </div>
+        ` : ''}
+        ${r.milestones?.length ? `
+        <div class="result-section">
+          <h5>Milestones</h5>
+          <ul class="result-list">
+            ${r.milestones.map(m => `<li>${m}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+        ${r.tips?.length ? `
+        <div class="result-section">
+          <h5>Learning Tips</h5>
+          <ul class="result-list">
+            ${r.tips.map(t => `<li>${t}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+      `;
+    }
+
+    function renderDebugHelp(r) {
+      return `
+        <div class="result-section">
+          <h5>Error Type</h5>
+          <span class="badge badge-error">${r.errorType || 'Unknown'}</span>
+        </div>
+        ${r.likelyCause ? `
+        <div class="result-section">
+          <h5>Likely Cause</h5>
+          <p class="result-text">${r.likelyCause}</p>
+        </div>
+        ` : ''}
+        ${r.explanation ? `
+        <div class="result-section">
+          <h5>Explanation</h5>
+          <p class="result-text">${r.explanation}</p>
+        </div>
+        ` : ''}
+        ${r.solutions?.length ? `
+        <div class="result-section">
+          <h5>Solutions</h5>
+          ${r.solutions.map((s, i) => `
+            <div class="phase-card">
+              <h6>Solution ${i + 1}</h6>
+              <p class="result-text">${s.solution}</p>
+              ${s.code ? `<div class="code-block" style="margin-top: 0.75rem;"><code>${escapeHtml(s.code)}</code></div>` : ''}
+              ${s.explanation ? `<p style="margin-top: 0.5rem; color: var(--text-muted);">${s.explanation}</p>` : ''}
+            </div>
+          `).join('')}
+        </div>
+        ` : ''}
+        ${r.preventionTips?.length ? `
+        <div class="result-section">
+          <h5>Prevention Tips</h5>
+          <ul class="result-list">
+            ${r.preventionTips.map(t => `<li>${t}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+      `;
+    }
+
+    function renderCodeExplanation(r) {
+      return `
+        ${r.overview ? `
+        <div class="result-section">
+          <h5>Overview</h5>
+          <p class="result-text">${r.overview}</p>
+        </div>
+        ` : ''}
+        ${r.breakdown?.length ? `
+        <div class="result-section">
+          <h5>Code Breakdown</h5>
+          ${r.breakdown.map(b => `
+            <div class="phase-card">
+              <h6>${b.section}</h6>
+              ${b.code ? `<div class="code-block"><code>${escapeHtml(b.code)}</code></div>` : ''}
+              <p class="result-text" style="margin-top: 0.75rem;">${b.explanation}</p>
+            </div>
+          `).join('')}
+        </div>
+        ` : ''}
+        ${r.concepts?.length ? `
+        <div class="result-section">
+          <h5>Concepts Used</h5>
+          <ul class="result-list">
+            ${r.concepts.map(c => `<li>${c}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+        ${r.keyTakeaways?.length ? `
+        <div class="result-section">
+          <h5>Key Takeaways</h5>
+          <ul class="result-list">
+            ${r.keyTakeaways.map(t => `<li>${t}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+      `;
+    }
+
+    function renderQuiz(r) {
+      return `
+        ${r.questions?.length ? `
+        <div class="result-section">
+          <h5>Quiz Questions</h5>
+          ${r.questions.map(q => `
+            <div class="quiz-question">
+              <p><span class="q-number">${q.id}</span>${q.question}</p>
+              ${q.options?.length ? `
+                <div class="quiz-options">
+                  ${q.options.map(opt => `
+                    <div class="quiz-option" onclick="this.classList.toggle('correct')">${opt}</div>
+                  `).join('')}
+                </div>
+              ` : ''}
+              <details>
+                <summary>Show Answer</summary>
+                <p>
+                  <strong>Answer:</strong> ${q.correctAnswer}<br>
+                  <span style="color: var(--text-secondary);">${q.explanation}</span>
+                </p>
+              </details>
+            </div>
+          `).join('')}
+        </div>
+        ` : ''}
+        ${r.studyTips?.length ? `
+        <div class="result-section">
+          <h5>Study Tips</h5>
+          <ul class="result-list">
+            ${r.studyTips.map(t => `<li>${t}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+      `;
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML.replace(/\n/g, '<br>');
+    }
+  </script>
+</body>
+</html>

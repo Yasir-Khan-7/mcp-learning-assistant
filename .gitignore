@@ -33,6 +33,7 @@ coverage/
 # Documentation files (not to be pushed)
 *.md
 !README.md
+!demo/README.md
 
 # Configuration files specific to local setup
 cursor-mcp-config.json
@@ -44,4 +45,7 @@ mcp/
 
 # Summary files
 PUSH_SUMMARY.txt
+
+# Vercel
+.vercel
 
